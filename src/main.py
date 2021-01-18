@@ -112,6 +112,24 @@ def dempster(sample_corr: np.ndarray) -> np.ndarray:
 
                 cur_processed = copy.deepcopy(processed)
                 cur_processed.add((i, j))
+
+                cur_processed.add((1, 2))
+                cur_processed.add((2, 3))
+                cur_processed.add((3, 4))
+                cur_processed.add((4, 5))
+
+                sample_corr[0, 0] = 1
+                sample_corr[1, 1] = 1
+                sample_corr[2, 2] = 1
+                sample_corr[3, 3] = 1
+                sample_corr[4, 4] = 1
+                sample_corr[5, 5] = 1
+                sample_corr[0, 1] = 0.5
+                sample_corr[1, 2] = 0.5
+                sample_corr[2, 3] = 0.5
+                sample_corr[3, 4] = 0.5
+                sample_corr[4, 5] = 0.5
+
                 new_corr_estimation = calc_next_estimation(cur_processed, corr_estimation, sample_corr)
                 cur_likelihood = calc_likelihood(new_corr_estimation)
                 cur_delta = cur_likelihood - base_likelihood
@@ -139,18 +157,37 @@ def dempster(sample_corr: np.ndarray) -> np.ndarray:
 
 
 def main():
-    correlation_matrix = pd.read_csv('../TestData/DempsterExample/data.csv',
-                                     dtype={i: float for i in range(6)},
-                                     delimiter=';',
-                                     names=[i for i in range(6)],
-                                     skipinitialspace=True)
-    correlation_matrix = correlation_matrix.values
-    corr_estimation = dempster(correlation_matrix)
-    inverted = np.linalg.inv(corr_estimation)
-    print(corr_estimation)
-    print()
-    print(inverted)
 
+    cur_processed = set([(0,0), (1,1), (2,2), (3,3), (4,4), (5,5), (0,1), (1,2), (2,3), (3,4), (4,5)])
+
+    r = 0.3
+    sample_corr = np.identity(6)
+    sample_corr[0, 1] = r
+    sample_corr[1, 2] = r
+    sample_corr[2, 3] = r
+    sample_corr[3, 4] = r
+    sample_corr[4, 5] = r
+    corr_estimation = np.identity(6)
+
+    new_corr_estimation = calc_next_estimation(cur_processed, corr_estimation, sample_corr)
+
+    print(new_corr_estimation)
+    print('')
+    print(np.linalg.inv(new_corr_estimation))
+
+    r2 = 0.6
+    sample_corr2 = np.identity(6)
+    sample_corr2[0, 1] = r2
+    sample_corr2[1, 2] = r2
+    sample_corr2[2, 3] = r2
+    sample_corr2[3, 4] = r2
+    sample_corr2[4, 5] = r2
+
+    new_corr_estimation2 = calc_next_estimation(cur_processed, corr_estimation, sample_corr2)
+
+    print(new_corr_estimation2)
+    print('')
+    #print(np.linalg.inv(new_corr_estimation2))
 
 if __name__ == '__main__':
     main()
